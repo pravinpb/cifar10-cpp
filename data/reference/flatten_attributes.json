@@ -1,0 +1,6 @@
+{
+    "layer_name": "flatten",
+    "type": "Flatten",
+    "input_shape": "Unknown",
+    "output_shape": "Unknown"
+}

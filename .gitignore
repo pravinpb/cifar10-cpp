@@ -1,0 +1,11 @@
+cifar-cpp/
+*.cifar-cpp
+/
+
+CPU_Trained_models/
+*.CPU_Trained_models
+/
+
+TensorRT_Models/
+*.TensorRT_Models
+/

@@ -1,0 +1,10 @@
+{
+    "layer_name": "sequential/conv2d/BiasAdd__6",
+    "type": "Transpose",
+    "inputs": [
+        "conv2d_input"
+    ],
+    "outputs": [
+        "sequential/conv2d/BiasAdd__6:0"
+    ]
+}
