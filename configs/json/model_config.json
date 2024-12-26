@@ -1,69 +1,125 @@
 {
     "layers": [
-      {
-        "layer_type": "Conv2D",
-        "input_shape": "(None, 32, 32, 3)",
-        "output_shape": "(None, 30, 30, 96)",
-        "parameters": 2688,
-        "kernel_size": "(3, 3)",
-        "filters": 96,
-        "stride": "(1, 1)",
-        "activation": "Relu"
-      },
-      {
-        "layer_type": "MaxPooling2D",
-        "input_shape": "(None, 30, 30, 96)",
-        "output_shape": "(None, 15, 15, 96)",
-        "pool_size": "(2, 2)",
-        "stride": "(2, 2)"
-      },
-      {
-        "layer_type": "Conv2D",
-        "input_shape": "(None, 15, 15, 96)",
-        "output_shape": "(None, 13, 13, 192)",
-        "parameters": 166080,
-        "kernel_size": "(3, 3)",
-        "filters": 192,
-        "stride": "(1, 1)",
-        "activation": "Relu"
-      },
-      {
-        "layer_type": "MaxPooling2D",
-        "input_shape": "(None, 13, 13, 192)",
-        "output_shape": "(None, 6, 6, 192)",
-        "pool_size": "(2, 2)",
-        "stride": "(2, 2)"
-      },
-      {
-        "layer_type": "Conv2D",
-        "input_shape": "(None, 6, 6, 192)",
-        "output_shape": "(None, 4, 4, 256)",
-        "parameters": 442624,
-        "kernel_size": "(3, 3)",
-        "filters": 256,
-        "stride": "(1, 1)",
-        "activation": "Relu"
-      },
-      {
-        "layer_type": "Flatten",
-        "input_shape": "(None, 4, 4, 256)",
-        "output_shape": "(None, 4096)",
-        "parameters": 0
-      },
-      {
-        "layer_type": "Dense",
-        "input_shape": "(None, 4096)",
-        "output_shape": "(None, 64)",
-        "parameters": 262208,
-        "activation": "Relu"
-      },
-      {
-        "layer_type": "Dense",
-        "input_shape": "(None, 64)",
-        "output_shape": "(None, 10)",
-        "parameters": 650,
-        "activation": "Softmax"
-      }
+        {
+            "layer_name": "conv2d",
+            "type": "Conv2D",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/conv2d_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/conv2d_output.bin",
+            "weights_file_paths": [
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_kernel.bin",
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_bias.bin"
+            ],
+            "attributes": {
+                "input_shape": [null, 32, 32, 3],
+                "output_shape": [null, 30, 30, 96],
+                "kernel_size": [3, 3],
+                "strides": [1, 1],
+                "padding": "valid",
+                "activation": "relu"
+            }
+        },
+        {
+            "layer_name": "max_pooling2d",
+            "type": "MaxPooling2D",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/max_pooling2d_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/max_pooling2d_output.bin",
+            "weights_file_paths": [],
+            "attributes": {
+                "input_shape": [null, 30, 30, 96],
+                "output_shape": [null, 15, 15, 96],
+                "strides": [2, 2],
+                "padding": "valid"
+            }
+        },
+        {
+            "layer_name": "conv2d_1",
+            "type": "Conv2D",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/conv2d_1_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/conv2d_1_output.bin",
+            "weights_file_paths": [
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_1_kernel.bin",
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_1_bias.bin"
+            ],
+            "attributes": {
+                "input_shape": [null, 15, 15, 96],
+                "output_shape": [null, 13, 13, 192],
+                "kernel_size": [3, 3],
+                "strides": [1, 1],
+                "padding": "valid",
+                "activation": "relu"
+            }
+        },
+        {
+            "layer_name": "max_pooling2d_1",
+            "type": "MaxPooling2D",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/max_pooling2d_1_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/max_pooling2d_1_output.bin",
+            "weights_file_paths": [],
+            "attributes": {
+                "input_shape": [null, 13, 13, 192],
+                "output_shape": [null, 6, 6, 192],
+                "strides": [2, 2],
+                "padding": "valid"
+            }
+        },
+        {
+            "layer_name": "conv2d_2",
+            "type": "Conv2D",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/conv2d_2_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/conv2d_2_output.bin",
+            "weights_file_paths": [
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_2_kernel.bin",
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_2_bias.bin"
+            ],
+            "attributes": {
+                "input_shape": [null, 6, 6, 192],
+                "output_shape": [null, 4, 4, 256],
+                "kernel_size": [3, 3],
+                "strides": [1, 1],
+                "padding": "valid",
+                "activation": "relu"
+            }
+        },
+        {
+            "layer_name": "flatten",
+            "type": "Flatten",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/flatten_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/flatten_output.bin",
+            "weights_file_paths": [],
+            "attributes": {
+                "input_shape": [null, 4, 4, 256],
+                "output_shape": [null, 4096]
+            }
+        },
+        {
+            "layer_name": "dense",
+            "type": "Dense",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/dense_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/dense_output.bin",
+            "weights_file_paths": [
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/dense_kernel.bin",
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/dense_bias.bin"
+            ],
+            "attributes": {
+                "input_shape": [null, 4096],
+                "output_shape": [null, 64],
+                "activation": "relu"
+            }
+        },
+        {
+            "layer_name": "dense_1",
+            "type": "Dense",
+            "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/dense_1_input.bin",
+            "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/dense_1_output.bin",
+            "weights_file_paths": [
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/dense_1_kernel.bin",
+                "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/dense_1_bias.bin"
+            ],
+            "attributes": {
+                "input_shape": [null, 64],
+                "output_shape": [null, 10],
+                "activation": "softmax"
+            }
+        }
     ]
-  }
-  
+}
