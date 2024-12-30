@@ -1,185 +1,132 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <string>
-#include <nlohmann/json.hpp>  // Include the nlohmann/json header for JSON parsing
-#include "conv2d.h"
-#include "maxpooling.h"
-#include "flatten.h"
-#include "dense.h"
+#include <nlohmann/json.hpp>
+#include <sstream>
+#include <filesystem>
 
 using json = nlohmann::json;
+namespace fs = std::filesystem;
+using namespace std;
 
-// Function to read binary data from a file into a vector
-template <typename T>
-std::vector<T> read_binary_file(const std::string& file_path, size_t size) {
-    std::ifstream file(file_path, std::ios::binary);
-    std::vector<T> data(size);
-    if (file.is_open()) {
-        file.read(reinterpret_cast<char*>(data.data()), size * sizeof(T));
-    } else {
-        std::cerr << "Error reading file: " << file_path << std::endl;
+// Function to read a binary file into a vector
+template<typename T>
+vector<T> read_binary_file(const string& file_path) {
+    ifstream file(file_path, ios::binary | ios::ate);
+    if (!file.is_open()) {
+        throw runtime_error("Failed to open file: " + file_path);
     }
-    return data;
+
+    size_t file_size = file.tellg();
+    file.seekg(0, ios::beg);
+
+    vector<T> buffer(file_size / sizeof(T));  // Adjust size for type
+    file.read(reinterpret_cast<char*>(buffer.data()), file_size);
+
+    return buffer;
 }
 
-// Function to write binary data to a file
-template <typename T>
-void write_binary_file(const std::string& file_path, const std::vector<T>& data) {
-    std::ofstream file(file_path, std::ios::binary);
-    if (file.is_open()) {
-        file.write(reinterpret_cast<const char*>(data.data()), data.size() * sizeof(T));
-    } else {
-        std::cerr << "Error writing file: " << file_path << std::endl;
+// Function to write a vector to the output file (for debugging)
+template<typename T>
+void write_vector(ofstream& output_file, const vector<T>& vec) {
+    for (const auto& val : vec) {
+        output_file << val << " ";
     }
+    output_file << endl;
 }
 
-// Function to reshape a 1D vector into a 3D vector (for Conv2D input)
-std::vector<std::vector<std::vector<float>>> reshape_to_3d(
-    const std::vector<float>& data, int height, int width, int channels) {
-    std::vector<std::vector<std::vector<float>>> reshaped_data(
-        channels, std::vector<std::vector<float>>(height, std::vector<float>(width)));
-
-    int index = 0;
-    for (int c = 0; c < channels; ++c) {
-        for (int h = 0; h < height; ++h) {
-            for (int w = 0; w < width; ++w) {
-                reshaped_data[c][h][w] = data[index++];
-            }
-        }
-    }
-    return reshaped_data;
-}
-
-// Function to reshape a 1D vector into a 4D vector (for Conv2D weights)
-std::vector<std::vector<std::vector<std::vector<float>>>> reshape_to_4d_weights(
-    const std::vector<float>& data, int input_channels, int output_channels, int kernel_size) {
-    std::vector<std::vector<std::vector<std::vector<float>>>> reshaped_weights(
-        output_channels, std::vector<std::vector<std::vector<float>>>(
-                             input_channels, std::vector<std::vector<float>>(
-                                                kernel_size, std::vector<float>(kernel_size))));
-
-    int index = 0;
-    for (int o = 0; o < output_channels; ++o) {
-        for (int i = 0; i < input_channels; ++i) {
-            for (int h = 0; h < kernel_size; ++h) {
-                for (int w = 0; w < kernel_size; ++w) {
-                    reshaped_weights[o][i][h][w] = data[index++];
-                }
-            }
-        }
-    }
-    return reshaped_weights;
+// Function to create a proper file path using filesystem::path
+fs::path get_full_path(const fs::path& base_dir, const string& file_name) {
+    return base_dir / file_name;  // Use filesystem path concatenation
 }
 
 int main() {
-    // Load the JSON configuration from a file
-    std::ifstream file("/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/configs/json/model_config.json");
-    if (!file.is_open()) {
-        std::cerr << "Error opening config file!" << std::endl;
+    // Set base path for the data directory
+    fs::path data_dir = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/";
+
+    // Open the output text file
+    ofstream output_file("/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/toTest/results.txt");
+    if (!output_file.is_open()) {
+        cerr << "Failed to open output file!" << endl;
+        return 1;
+    }
+
+    // Open the JSON file
+    ifstream input_file("/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/configs/json/model_config.json");
+    
+    if (!input_file.is_open()) {
+        cerr << "Failed to open JSON file!" << endl;
         return 1;
     }
 
     // Parse the JSON file
-    json config;
-    file >> config;
-    std::cout << "Loaded config: " << config.dump(4) << std::endl;  // Print the parsed JSON config
+    json model;
+    input_file >> model;
 
-    // Variables to hold the layer outputs
-    std::vector<float> inputData;
-    std::vector<std::vector<std::vector<float>>> convOutput;
-    std::vector<float> poolOutput, flattenOutput, denseOutput;
+    // Iterate through layers and process each layer
+    for (const auto& layer : model["layers"]) {
+        output_file << "Layer: " << layer["layer_name"] << endl;
+        output_file << "  Type: " << layer["type"] << endl;
+        
+        // Write and process input shape
+        auto input_shape = layer["attributes"]["input_shape"];
+        output_file << "  Input Shape: ";
+        for (const auto& dim : input_shape) {
+            output_file << dim << " ";
+        }
+        output_file << endl;
 
-    // Iterate through the layers in the configuration
-    for (const auto& layerConfig : config["layers"]) {
-        std::string layerType = layerConfig["type"];
-        std::string inputFilePath = layerConfig["input_file_path"];
-        std::string outputFilePath = layerConfig["output_file_path"];
-        std::vector<std::string> weightFilePaths = layerConfig["weights_file_paths"];
+        // Write and process output shape
+        auto output_shape = layer["attributes"]["output_shape"];
+        output_file << "  Output Shape: ";
+        for (const auto& dim : output_shape) {
+            output_file << dim << " ";
+        }
+        output_file << endl;
 
-        std::cout << "Processing layer: " << layerType << std::endl;
-        std::cout << "Input file: " << inputFilePath << std::endl;
-        std::cout << "Output file: " << outputFilePath << std::endl;
-
-        // Read input data for this layer
-        size_t inputSize = 0;  // Determine the input size from the layer attributes (e.g., input_shape)
-        if (!layerConfig["attributes"]["input_shape"].is_null()) {
-            inputSize = layerConfig["attributes"]["input_shape"].size(); // Simplified; adjust as needed
+        // Build the file path for the input binary file based on the layer name
+        fs::path input_file_path = get_full_path(data_dir / "input", layer["layer_name"].get<string>() + "_input.bin");
+        output_file << "  Reading input from: " << input_file_path << endl;
+        try {
+            auto input_data = read_binary_file<float>(input_file_path.string());  // Convert to string for file reading
+            output_file << "    Input Data (first 10 elements): ";
+            write_vector(output_file, vector<float>(input_data.begin(), input_data.begin() + min(input_data.size(), size_t(10))));
+        } catch (const exception& e) {
+            output_file << "    Error reading input data: " << e.what() << endl;
         }
 
-        std::cout << "Reading input data of size: " << inputSize << std::endl;
-        inputData = read_binary_file<float>(inputFilePath, inputSize);  // Read the input data from file
-
-        if (layerType == "Conv2D") {
-            // Extract attributes
-            int input_channels = layerConfig["attributes"]["input_shape"][3]; // Assuming last element is input channels
-            int output_channels = layerConfig["attributes"]["output_shape"][3]; // Assuming last element is output channels
-            int kernelHeight = layerConfig["attributes"]["kernel_size"][0];
-            int kernelWidth = layerConfig["attributes"]["kernel_size"][1];
-            int stride = layerConfig["attributes"]["strides"][0];
-            std::string padding = layerConfig["attributes"]["padding"];
-            std::string activation = layerConfig["attributes"]["activation"];
-
-            std::cout << "Conv2D layer: input_channels = " << input_channels
-                      << ", output_channels = " << output_channels
-                      << ", kernel_size = (" << kernelHeight << ", " << kernelWidth << ")"
-                      << ", stride = " << stride
-                      << ", padding = " << padding
-                      << ", activation = " << activation << std::endl;
-
-            // Read weights (kernel and bias)
-            int kernelSize = input_channels * output_channels * kernelHeight * kernelWidth;
-            std::cout << "Reading kernel weights of size: " << kernelSize << std::endl;
-            std::vector<float> kernel = read_binary_file<float>(weightFilePaths[0], kernelSize);
-            std::cout << "Reading bias weights of size: " << output_channels << std::endl;
-            std::vector<float> bias = read_binary_file<float>(weightFilePaths[1], output_channels);
-
-            // Reshape the input data to match the expected format (3D vector for Conv2D)
-            int height = layerConfig["attributes"]["input_shape"][1];
-            int width = layerConfig["attributes"]["input_shape"][2];
-            auto reshapedInput = reshape_to_3d(inputData, height, width, input_channels);
-
-            std::cout << "Input reshaped to 3D: [" << input_channels << " x " << height << " x " << width << "]" << std::endl;
-
-            // Reshape the weights to match the expected format (4D vector for Conv2D)
-            auto reshapedWeights = reshape_to_4d_weights(kernel, input_channels, output_channels, kernelHeight);
-
-            // Create the Conv2D layer and apply it
-            Conv2D convLayer(input_channels, output_channels, kernelHeight, stride, (padding == "valid") ? 0 : 1);
-            std::cout << "Applying Conv2D forward pass..." << std::endl;
-            convOutput = convLayer.forward(reshapedInput, reshapedWeights, bias);
-
-            std::cout << "Conv2D forward pass completed." << std::endl;
-
-            // Apply activation function if needed (e.g., ReLU)
-            if (activation == "relu") {
-                std::cout << "Applying ReLU activation..." << std::endl;
-                for (auto& channel : convOutput) {
-                    for (auto& row : channel) {
-                        for (auto& value : row) {
-                            value = std::max(static_cast<float>(0.0f), value);  // ReLU activation
-                        }
-                    }
-                }
-                std::cout << "ReLU activation applied." << std::endl;
+        // Reading weights binary files (if any)
+        auto weights_file_paths = layer["weights_file_paths"];
+        for (const auto& weights_file_path : weights_file_paths) {
+            // Make sure we are appending the weights file path correctly relative to the "weights" directory
+            fs::path weight_file_path = get_full_path(data_dir / "weights", weights_file_path.get<string>());
+            output_file << "  Reading weights from: " << weight_file_path << endl;
+            try {
+                auto weights_data = read_binary_file<float>(weight_file_path.string());  // Convert to string for file reading
+                output_file << "    Weights Data (first 10 elements): ";
+                write_vector(output_file, vector<float>(weights_data.begin(), weights_data.begin() + min(weights_data.size(), size_t(10))));
+            } catch (const exception& e) {
+                output_file << "    Error reading weights data: " << e.what() << endl;
             }
+        }
 
-            write_binary_file(outputFilePath, convOutput);  // Write the output to file
-            std::cout << "Conv2D output written to: " << outputFilePath << std::endl;
+        // Build the file path for the output binary file based on the layer name
+        fs::path output_file_path = get_full_path(data_dir / "output", layer["layer_name"].get<string>() + "_output.bin");
+        output_file << "  Reading output from: " << output_file_path << endl;
+        try {
+            auto output_data = read_binary_file<float>(output_file_path.string());  // Convert to string for file reading
+            output_file << "    Output Data (first 10 elements): ";
+            write_vector(output_file, vector<float>(output_data.begin(), output_data.begin() + min(output_data.size(), size_t(10))));
+        } catch (const exception& e) {
+            output_file << "    Error reading output data: " << e.what() << endl;
         }
-        else if (layerType == "MaxPooling2D") {
-            // Handle MaxPooling2D layer (same as before)
-            std::cout << "MaxPooling2D layer processing..." << std::endl;
-        }
-        else if (layerType == "Flatten") {
-            // Handle Flatten layer (same as before)
-            std::cout << "Flatten layer processing..." << std::endl;
-        }
-        else if (layerType == "Dense") {
-            // Handle Dense layer (same as before)
-            std::cout << "Dense layer processing..." << std::endl;
-        }
+
+        output_file << endl;  // Add a new line between layers
     }
 
+    // Close the output file
+    output_file.close();
+
+    cout << "Results have been written to results.txt." << endl;
     return 0;
 }
