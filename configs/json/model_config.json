@@ -10,8 +10,8 @@
                 "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_bias.bin"
             ],
             "attributes": {
-                "input_shape": [null, 32, 32, 3],
-                "output_shape": [null, 30, 30, 96],
+                "input_shape": [32, 32, 3],
+                "output_shape": [30, 30, 96],
                 "kernel_size": [3, 3],
                 "strides": [1, 1],
                 "padding": "valid",
@@ -25,8 +25,8 @@
             "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/max_pooling2d_output.bin",
             "weights_file_paths": [],
             "attributes": {
-                "input_shape": [null, 30, 30, 96],
-                "output_shape": [null, 15, 15, 96],
+                "input_shape": [30, 30, 96],
+                "output_shape": [15, 15, 96],
                 "strides": [2, 2],
                 "padding": "valid"
             }
@@ -41,8 +41,8 @@
                 "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_1_bias.bin"
             ],
             "attributes": {
-                "input_shape": [null, 15, 15, 96],
-                "output_shape": [null, 13, 13, 192],
+                "input_shape": [15, 15, 96],
+                "output_shape": [13, 13, 192],
                 "kernel_size": [3, 3],
                 "strides": [1, 1],
                 "padding": "valid",
@@ -56,8 +56,8 @@
             "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/max_pooling2d_1_output.bin",
             "weights_file_paths": [],
             "attributes": {
-                "input_shape": [null, 13, 13, 192],
-                "output_shape": [null, 6, 6, 192],
+                "input_shape": [13, 13, 192],
+                "output_shape": [6, 6, 192],
                 "strides": [2, 2],
                 "padding": "valid"
             }
@@ -72,8 +72,8 @@
                 "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/conv2d_2_bias.bin"
             ],
             "attributes": {
-                "input_shape": [null, 6, 6, 192],
-                "output_shape": [null, 4, 4, 256],
+                "input_shape": [6, 6, 192],
+                "output_shape": [4, 4, 256],
                 "kernel_size": [3, 3],
                 "strides": [1, 1],
                 "padding": "valid",
@@ -87,8 +87,8 @@
             "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/flatten_output.bin",
             "weights_file_paths": [],
             "attributes": {
-                "input_shape": [null, 4, 4, 256],
-                "output_shape": [null, 4096]
+                "input_shape": [4, 4, 256],
+                "output_shape": [4096]
             }
         },
         {
@@ -101,8 +101,8 @@
                 "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/dense_bias.bin"
             ],
             "attributes": {
-                "input_shape": [null, 4096],
-                "output_shape": [null, 64],
+                "input_shape": [4096],
+                "output_shape": [64],
                 "activation": "relu"
             }
         },
@@ -116,8 +116,8 @@
                 "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/weights/dense_1_bias.bin"
             ],
             "attributes": {
-                "input_shape": [null, 64],
-                "output_shape": [null, 10],
+                "input_shape": [64],
+                "output_shape": [10],
                 "activation": "softmax"
             }
         }
