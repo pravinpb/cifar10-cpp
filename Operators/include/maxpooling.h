@@ -1,4 +1,3 @@
-
 #ifndef MAXPOOLING_H
 #define MAXPOOLING_H
 
@@ -8,7 +7,8 @@ class MaxPooling {
 public:
     MaxPooling(int pool_size, int stride);
     
-    std::vector<std::vector<float>> apply_pooling(const std::vector<std::vector<float>>& input);
+    
+std::vector<std::vector<std::vector<float>>> apply_pooling(const std::vector<std::vector<std::vector<float>>>& input);
 
 private:
     int pool_size;

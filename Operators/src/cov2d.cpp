@@ -1,6 +1,7 @@
 #include "conv2d.h"
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 
 // Constructor
 Conv2D::Conv2D(int input_channels, int output_channels, int kernel_size, int stride, int padding)
@@ -37,7 +38,10 @@ std::vector<std::vector<std::vector<float>>> Conv2D::forward(
     const std::vector<std::vector<std::vector<float>>>& input,
     const std::vector<std::vector<std::vector<std::vector<float>>>>& weights,
     const std::vector<float>& biases) {
-
+    
+    std::cout << "Weights: " << weights.size() << " " << weights[0].size() << " " << weights[0][0].size() << " " << weights[0][0][0].size() << std::endl;
+    std::cout << "Output channels: " << output_channels_ << std::endl;
+    std::cout << "Input channels: " << input_channels_ << std::endl;
     if (weights.size() != output_channels_ || weights[0].size() != input_channels_) {
         throw std::invalid_argument("Weight dimensions do not match input or output channels.");
     }
