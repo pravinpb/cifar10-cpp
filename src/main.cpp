@@ -45,6 +45,20 @@ std::vector<std::vector<std::vector<std::vector<float>>>> load_weights(const std
     return weights;
 }
 
+//Function to load weights for dense layers
+std::vector<std::vector<float>> load_weights_dense(const std::string& file_path, int output_channels, int input_channels) {
+    std::ifstream file(file_path, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Error opening weights file: " + file_path);
+    }
+    std::vector<std::vector<float>> weights(output_channels, std::vector<float>(input_channels));
+    for (int i = 0; i < output_channels; ++i) {
+        file.read(reinterpret_cast<char*>(weights[i].data()), weights[i].size() * sizeof(float));
+    }
+    file.close();
+    return weights;
+}
+
 // Function to load biases from binary files
 std::vector<float> load_biases(const std::string& file_path, int output_channels) {
     std::ifstream file(file_path, std::ios::binary);
@@ -81,6 +95,13 @@ void apply_relu(std::vector<std::vector<std::vector<float>>>& data) {
     }
 }
 
+// Apply ReLU activation (for Dense layers)
+void apply_relu(std::vector<float>& data) {
+    for (float& val : data) {
+        val = std::max(val, 0.0f);
+    }
+}
+
 // Apply Softmax activation (for Dense layers)
 void apply_softmax(std::vector<float>& data) {
     float sum = 0.0f;
@@ -90,6 +111,37 @@ void apply_softmax(std::vector<float>& data) {
     for (float& val : data) {
         val = std::exp(val) / sum;
     }
+}
+
+// Function to print all data to both console and file
+void print_all_data(const std::vector<std::vector<std::vector<float>>>& data, std::ofstream& file) {
+    file << "Output data: \n";
+    std::cout << "Output data: \n";
+    for (const auto& channel : data) {
+        for (const auto& row : channel) {
+            for (float val : row) {
+                file << val << " ";
+                std::cout << val << " ";
+            }
+            file << "\n";
+            std::cout << "\n";
+        }
+        file << "\n";
+        std::cout << "\n";
+    }
+    file << std::endl;
+    std::cout << std::endl;
+}
+
+void print_all_data(const std::vector<float>& data, std::ofstream& file) {
+    file << "Output data: \n";
+    std::cout << "Output data: \n";
+    for (float val : data) {
+        file << val << " ";
+        std::cout << val << " ";
+    }
+    file << std::endl;
+    std::cout << std::endl;
 }
 
 int main() {
@@ -108,11 +160,9 @@ int main() {
             std::string layer_type = layer["type"];
             auto attributes = layer["attributes"];
 
-            // std::cout << "Processing layer: " << layer_name << std::endl;
-            // std::cout << "Current output shape: " << current_output_shape[0] << " " << current_output_shape[1] << " " << current_output_shape[2] << std::endl;
-
             // Initialize weights and biases if applicable
             std::vector<std::vector<std::vector<std::vector<float>>>> kernel;
+            std::vector<std::vector<float>> kernel_dense;
             std::vector<float> bias;
 
             if (layer_type == "Conv2D" && layer.contains("weights_file_paths")) {
@@ -126,12 +176,15 @@ int main() {
                 current_output_shape = {attributes["input_shape"][0], attributes["input_shape"][1], attributes["input_shape"][2]};
             }
 
+            // Print layer name and shapes
+            std::cout << "\nProcessing Layer: " << layer_name << " (" << layer_type << ")" << std::endl;
+            std::cout << "Input shape: ";
+            for (const auto& dim : current_output_shape) {
+                std::cout << dim << " ";
+            }
+            std::cout << std::endl;
+
             if (layer_type == "Conv2D") {
-                std::cout << "Processing Conv2D layer: " << layer_name << std::endl;
-                std::cout << "Input shape: " << current_output_shape[0] << " " << current_output_shape[1] << " " << current_output_shape[2] << std::endl;
-                std::cout << "Kernel shape: " << kernel.size() << " " << kernel[0].size() << " " << kernel[0][0].size() << " " << kernel[0][0][0].size() << std::endl;
-                std::cout << "Bias shape: " << bias.size() << std::endl;
-                
                 Conv2D conv(current_output_shape[2], attributes["output_shape"][2], attributes["kernel_size"][0], attributes["strides"][0], (attributes["padding"] == "valid") ? 0 : 1);
                 auto conv_output = conv.forward(current_output_data, kernel, bias);
 
@@ -141,50 +194,63 @@ int main() {
 
                 current_output_data = conv_output;
                 current_output_shape = {attributes["output_shape"][0], attributes["output_shape"][1], attributes["output_shape"][2]};
-            } 
-            else if (layer_type == "MaxPooling2D") {
+            } else if (layer_type == "MaxPooling2D") {
                 int pool_size = 2;  // Default pool size of 2x2
                 int stride = attributes["strides"][0];
                 MaxPooling pool(pool_size, stride);
                 auto pool_output = pool.apply_pooling(current_output_data);
 
-                std::cout << "pool_out" << pool_output.size() << " " << pool_output[0].size() << " " << pool_output[0][0].size() << std::endl;
-
                 current_output_data = {pool_output};
                 current_output_shape = {static_cast<int>(pool_output[0][0].size()), static_cast<int>(pool_output[0].size()), static_cast<int>(pool_output.size())};
-
-                std::cout << "pool_out 1: " << current_output_shape[0] << " " << current_output_shape[1] << " " << current_output_shape[2] << std::endl;
-            } 
-            else if (layer_type == "Flatten") {
+            } else if (layer_type == "Flatten") {
                 Flatten flatten;
-                auto flatten_output = flatten.forward(current_output_data[0]);
+                auto flatten_output = flatten.forward(current_output_data);
 
                 current_output_data = {{flatten_output}}; // Wrap in an extra dimension
                 current_output_shape = {static_cast<int>(flatten_output.size())};
-            } 
-            else if (layer_type == "Dense") {
+            } else if (layer_type == "Dense") {
                 Dense dense(current_output_shape[0], attributes["output_shape"][0]);
-                Flatten flatten;
-                auto flattened_input = flatten.forward(current_output_data[0]);
-                auto dense_output = dense.forward(flattened_input);
+                std::vector<float> dense_output;
+
+                if (layer_type == "Dense" && layer.contains("weights_file_paths")) {
+                    const auto& weights_file_paths = layer["weights_file_paths"];
+                    kernel_dense = load_weights_dense(weights_file_paths[0], attributes["output_shape"][0], current_output_shape[0]);
+                    bias = load_biases(weights_file_paths[1], attributes["output_shape"][0]);
+                }
+
+                dense.set_weights(kernel_dense);
+                dense.set_biases(bias);
+                
+                dense_output = dense.forward(current_output_data[0][0]);
 
                 if (attributes["activation"] == "softmax") {
                     apply_softmax(dense_output);
+                } else if (attributes["activation"] == "relu") {
+                    apply_relu(dense_output);
                 }
 
-                current_output_data = {{{dense_output}}}; // Wrap in an extra dimension
+                current_output_data = {{dense_output}};  // Wrap in an extra dimension
                 current_output_shape = {static_cast<int>(dense_output.size())};
             }
 
-            // Print layer output shape
-            std::cout << "Output shape for layer " << layer_name << ": ";
+            // Print output shape
+            std::cout << "Output shape: ";
             for (const auto& dim : current_output_shape) {
                 std::cout << dim << " ";
             }
             std::cout << std::endl;
         }
+        
+        // Print the final output data
+        std::cout << "Dense output: ";
+        for (const auto& val : current_output_data[0][0]) {
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
     return 0;
 }
+

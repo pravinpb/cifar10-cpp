@@ -8,10 +8,10 @@ class Flatten {
 public:
     Flatten() = default;
     
-    std::vector<float> forward(const std::vector<std::vector<float>>& input);
+    std::vector<float> forward(const std::vector<std::vector<std::vector<float>>>& input);
 
 private:
-    std::vector<float> flatten_2d(const std::vector<std::vector<float>>& input);
+    std::vector<float> flatten_2d(const std::vector<std::vector<std::vector<float>>>& input);
 };
 
 #endif

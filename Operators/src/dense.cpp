@@ -17,12 +17,8 @@ void Dense::set_biases(const std::vector<float>& new_biases) {
     biases = new_biases;
 }
 
-float Dense::relu(float x) {
-    return x < 0 ? 0 : x;  // ReLU activation
-}
-
 std::vector<float> Dense::forward(const std::vector<float>& input) {
-    std::vector<float> output(output_size, 0.0f);
+    std::vector<float> output(output_size, 1.0f);
 
     // Perform matrix multiplication: output = weights * input + bias
     for (int i = 0; i < output_size; ++i) {
@@ -31,7 +27,7 @@ std::vector<float> Dense::forward(const std::vector<float>& input) {
             activation += weights[i][j] * input[j];
         }
         activation += biases[i];
-        output[i] = relu(activation);  // Apply ReLU activation
+        output[i] = activation;  // Apply ReLU activation
     }
 
     return output;
