@@ -23,7 +23,6 @@
             "type": "MaxPooling2D",
             "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/max_pooling2d_input.bin",
             "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/max_pooling2d_output.bin",
-            "weights_file_paths": [],
             "attributes": {
                 "input_shape": [30, 30, 96],
                 "output_shape": [15, 15, 96],
@@ -54,7 +53,6 @@
             "type": "MaxPooling2D",
             "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/max_pooling2d_1_input.bin",
             "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/max_pooling2d_1_output.bin",
-            "weights_file_paths": [],
             "attributes": {
                 "input_shape": [13, 13, 192],
                 "output_shape": [6, 6, 192],
@@ -85,7 +83,6 @@
             "type": "Flatten",
             "input_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/input/flatten_input.bin",
             "output_file_path": "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/data/output/flatten_output.bin",
-            "weights_file_paths": [],
             "attributes": {
                 "input_shape": [4, 4, 256],
                 "output_shape": [4096]
