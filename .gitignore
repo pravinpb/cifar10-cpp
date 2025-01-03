@@ -6,14 +6,10 @@ CPU_Trained_models/
 *.CPU_Trained_models
 /
 
-tf213/
-*.tf213
-/
 
 TensorRT_Models/
 *.TensorRT_Models
 /
-
 
 
 toTest/
