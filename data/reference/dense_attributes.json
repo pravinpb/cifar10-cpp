@@ -1,7 +1,0 @@
-{
-    "layer_name": "dense",
-    "type": "Dense",
-    "input_shape": "Unknown",
-    "output_shape": "Unknown",
-    "activation": "relu"
-}
