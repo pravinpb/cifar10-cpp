@@ -10,7 +10,7 @@
 
 
 int main() {
-    std::string config_path = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/toTest/data/model_architecture.json";
+    std::string config_path = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/configs/json/model_config.json";
     nlohmann::json config = load_json_config(config_path);
 
     std::vector<float> input_data(32 * 32 * 3, 1.0f);
