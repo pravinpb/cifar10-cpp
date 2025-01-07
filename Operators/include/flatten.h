@@ -1,17 +1,8 @@
-
 #ifndef FLATTEN_H
 #define FLATTEN_H
 
 #include <vector>
 
-class Flatten {
-public:
-    Flatten() = default;
-    
-    std::vector<float> forward(const std::vector<std::vector<std::vector<float>>>& input);
+std::vector<float> Flatten(const std::vector<float>& input, int width, int height, int channels);
 
-private:
-    std::vector<float> flatten_2d(const std::vector<std::vector<std::vector<float>>>& input);
-};
-
-#endif
+#endif // FLATTEN_H
