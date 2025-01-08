@@ -7,19 +7,40 @@
 #include "loadbinfile.h"
 #include "relu.h"
 #include "softmax.h"
+#include "readimage.h"
+#include "saveastxt.h"
+#include "unittest.h"
+#include "labels.h"
+#include "modeltest.h"
 
 
 int main() {
     std::string config_path = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/configs/json/model_config.json";
     nlohmann::json config = load_json_config(config_path);
 
-    std::vector<float> input_data(32 * 32 * 3, 1.0f);
+    std::string python_dir = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Output/python";  // Replace with the actual path
+    std::string cpp_dir = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Output/cpp";    
 
-    // //print input
+    std::string cpp_output_file = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Output/cpp/dense_1_output.txt";
+    std::string python_output_file = "/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Output/python/dense_1_output.txt";
+
+
+    // std::vector<float> input_data(32 * 32 * 3, 1.0f);
+    // // normalize the input data
+    // for (float& val : input_data) {
+    //     val /= 255.0f;
+    // }
+
+
+    std::vector<float> input_data;
+    readImageAsVector("/Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/toTest/images/0001_9.png", input_data);
+
+    // print input
     // std::cout << "input" << std::endl;
     // for (float val : input_data) {
     //     std::cout << val << " ";
     // }
+    // std::cout << std::endl;
 
     for (const auto& layer : config["layers"]) {
         std::string layer_type = layer["type"];
@@ -41,6 +62,8 @@ int main() {
             }
             input_data = conv_output;
 
+            save_output_as_txt(layer["layer_name"], input_data);
+
             // //print convolution output
             // std::cout << "convolution Output: " << std::endl;
             // for (float val : input_data) {
@@ -61,6 +84,8 @@ int main() {
             max_pooling2d(input_data, maxpool_output, input_shape, output_shape, pool_size, strides, padding, layer_name);
 
             input_data = maxpool_output;
+            
+            save_output_as_txt(layer["layer_name"], input_data);
 
             // //print maxpool output
             // std::cout << "MaxPooling Output: " << std::endl;
@@ -83,13 +108,14 @@ int main() {
 
             input_data = dense_output;
 
+            save_output_as_txt(layer["layer_name"], input_data);
 
-        //     //print dense output
-        //     std::cout << "Dense Output: " << std::endl;
-        //     for (float val : input_data) {
-        //         std::cout << val << " ";
-        //     }
-        //     std::cout << std::endl;
+            // //print dense output
+            // std::cout << "Dense Output: " << std::endl;
+            // for (float val : input_data) {
+            //     std::cout << val << " ";
+            // }
+            // std::cout << std::endl;
         }
     }
     std::cout << " " << std::endl;
@@ -100,9 +126,28 @@ int main() {
     std::cout << std::endl;
     std::cout <<" "<< std::endl;
 
-    std::vector<std::string> class_names = {"airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"};
-    auto max_prob_it = std::max_element(input_data.begin(), input_data.end());
-    int max_prob_index = std::distance(input_data.begin(), max_prob_it);
-    std::cout << "Predicted class: " << class_names[max_prob_index] << std::endl;
+    std::cout << " Predicted Class: " <<"";
+    predict_and_print_class(input_data);
+
+    // Compare the directories
+    std::cout << " " << std::endl;
+    std::cout << "Unit Testing" << std::endl;
+
+    compare_directories(python_dir, cpp_dir);
+
+    // Compare the outputs of the two models
+    std::cout << " " << std::endl;
+    std::cout << "Model Testing" << std::endl;
+    compare_model_outputs(cpp_output_file, python_output_file);
+    predict_and_print_class(input_data);
+
+
     return 0;
 }
+    std::string cpp_output_file = "Output/cpp/dense_1_output.txt";
+    std::string python_output_file = "Output/python/dense_1_output.txt";
+
+
+
+
+

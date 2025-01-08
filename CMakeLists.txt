@@ -16,6 +16,7 @@ include_directories(
     /System/Volumes/Data/Users/pravinpb/vcpkg/installed/arm64-osx/include
     /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Operators/include
     /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/utilities/include
+    /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Test_Operators/include
 )
 
 # Set the source files
@@ -28,6 +29,10 @@ set(SRCS
     /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/utilities/src/loadbinfile.cpp
     /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/utilities/src/loadjsonfile.cpp
     /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/utilities/src/readimage.cpp
+    /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/utilities/src/saveastxt.cpp
+    /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Test_Operators/src/unittest.cpp
+    /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/utilities/src/labels.cpp
+    /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/Test_Operators/src/modeltest.cpp
     /Users/pravinpb/pycode/MCW/Assignments/cifar10-cpp/src/main.cpp
 )
 
