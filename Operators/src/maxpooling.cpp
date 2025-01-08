@@ -13,6 +13,8 @@ void max_pooling2d(const std::vector<float>& input, std::vector<float>& output,
     int in_height = input_shape[1], in_width = input_shape[2], in_channels = input_shape[3];
     int out_height = output_shape[1], out_width = output_shape[2];
 
+    std::cout << "Performing MaxPooling2D operation for layer: " << layer_name << std::endl;
+
     for (int b = 0; b < batch; ++b) {
         for (int h = 0; h < out_height; ++h) {
             for (int w = 0; w < out_width; ++w) {
