@@ -4,6 +4,7 @@
 bool readImageAsVector(const std::string& imagePath, std::vector<float>& outputVector) {
     // Load the image
     cv::Mat image = cv::imread(imagePath, cv::IMREAD_COLOR);
+    cv::cvtColor(image, image, cv::COLOR_BGR2RGB); 
     if (image.empty()) {
         std::cerr << "Error: Could not open or find the image at " << imagePath << std::endl;
         return false;
