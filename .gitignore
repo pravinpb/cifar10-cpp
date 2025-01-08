@@ -20,5 +20,8 @@ toTest/
 *.vscode
 /
 
+build/
+*.build
+/
 
 writeJSON.ipynb
